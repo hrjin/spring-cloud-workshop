@@ -4,3 +4,16 @@ server:
 spring:
   application:
     name: display
+
+# hystrix Timeout 시간 조정하기
+hystrix:
+  command:
+    productInfo:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000
+      # 10초 동안 20개(default) 이상의 호출이 발생했을 때 50% 이상의 호출에서 에러가 발생하면 Circuit Open
+      circuitBreaker:
+        requestVolumeThreshold: 1      # default 20
+        errorThresholdPercentage: 50   # default 50

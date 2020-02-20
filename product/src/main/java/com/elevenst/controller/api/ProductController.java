@@ -16,6 +16,18 @@ public class ProductController {
 
     @GetMapping("/{proudctId}")
     public String getProduct(@PathVariable String proudctId) {
-        return "[product id = " + proudctId + " at " + System.currentTimeMillis() + "]";
+        // 1. throw exception 일 경우
+        throw new RuntimeException("I/O Exception~~");
+
+        // 2. Thread
+        // Thread 로 timeout 설정
+//        try {
+//            Thread.sleep(2000);
+//        }catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        System.out.println("Called proudct id : " + proudctId);
+//        return "[product id = " + proudctId + " at " + System.currentTimeMillis() + "]";
     }
 }
