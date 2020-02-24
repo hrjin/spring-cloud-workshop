@@ -37,3 +37,28 @@ Circuit Breaker의 단위
 ### 주의점
 - Retry를 시도하다가도 HystrixTimeout이 발생하면, 즉시 에러를 리턴.(Hystrix로 Ribbon을 감싸서 호출한 상태이므로)
 - classpath에 retry가 존재해야한다.
+
+
+## Eureka(Dynamic Service Discovery)
+- Service Registry
+- DiscoveryClient : spring-cloud에서 서비스 레지스트리 사용 부분을 추상화
+- Eureka 를 통해 Round Robbin 으로 Ribbon 호출하여 Load Balancing
+
+
+### Eureka in Spring Cloud
+- 서버 시작 시 Eureka Server(Registry)에 자동으로 자신의 상태를 등록
+>> eureka.client.register-with-eureka: true(default)
+
+- 주기적 HeartBeat로 동작함을 알림
+>> eureka.instance.lease-renewal-interval-in-seconds: 30(default)
+
+- 서버 종료시 자신의 상태 변경(Down)
+
+- Eureka상에 등록된 이름은 spring.application.name
+
+- @EnableEurekaClient를 붙인 Application은 Eureka 서버로부터 남의 주소를 가져와서 로컬, 즉 메모리에 그 주소를 등록. Ribbon 에서는 그 메모리에 있는 주소를 가지고 Round Robbin한다.
+
+
+### RestTemplate에 Eureka 적용하기
+- @LoadBalanced RestTemplate 에는 Ribbon + Eureka 연동
+- Ribbon의 Load Balancing과 Retry가 함께 동작
