@@ -19,6 +19,8 @@ Circuit Breaker의 단위
 ```
 예시로 두개의 메소드(commandKey = 'serviceA', commandKey = 'serviceB')는 각각의 Circuit Breaker를 가지지만 두개의 Command가 'MyService'라는 하나의 ThreadPool에서 수행됨.
 ```
+<br>
+<br>
 
 ## Ribbon 적용
 
@@ -39,6 +41,9 @@ Circuit Breaker의 단위
 - classpath에 retry가 존재해야한다.
 
 
+<br>
+<br>
+
 ## Eureka(Dynamic Service Discovery)
 - Service Registry
 - DiscoveryClient : spring-cloud에서 서비스 레지스트리 사용 부분을 추상화
@@ -47,10 +52,10 @@ Circuit Breaker의 단위
 
 ### Eureka in Spring Cloud
 - 서버 시작 시 Eureka Server(Registry)에 자동으로 자신의 상태를 등록
->> eureka.client.register-with-eureka: true(default)
+> eureka.client.register-with-eureka: true(default)
 
 - 주기적 HeartBeat로 동작함을 알림
->> eureka.instance.lease-renewal-interval-in-seconds: 30(default)
+> eureka.instance.lease-renewal-interval-in-seconds: 30(default)
 
 - 서버 종료시 자신의 상태 변경(Down)
 
