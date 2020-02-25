@@ -67,3 +67,45 @@ Circuit Breaker의 단위
 ### RestTemplate에 Eureka 적용하기
 - @LoadBalanced RestTemplate 에는 Ribbon + Eureka 연동
 - Ribbon의 Load Balancing과 Retry가 함께 동작
+
+<br>
+<br>
+
+## Feign(Declarative Http Client)
+
+### 특징
+- Interface 선언을 통해 자동으로 Http Client를 생성
+- RestTemplate은 concreate 클래스라 테스트하기 어렵다
+> 관심사 : 어떤 URL, 어떻게 파싱할 것인가가 아닌 로컬에서 외부 서비스를 호출하고 리턴을 받아 오는 것
+- Spring Cloud에서 Open-Feign 기반으로 Wrapping한 것이 Spring Cloud Feign
+
+### 사용법
+- @FeignClient를 Interface에 명시하는 선언만으로 Http Client 구현물을 만들어 줌
+- 각 API를 Spring MVC Annotation을 통해 정의
+- @Autowired를 통해 DI 받아 사용
+
+
+### Feign의 동작
+- Feign Client는 내부적으로 Ribbon을 사용.
+> @FeignClient에 URL 명시 => No Ribbon, No Eureka, No Hystrix (순수 Feign Client로서만 동작)
+> @FeignClient에서 URL만 제거 => Ribbon + Eureka + Hystrix 모드로 동작
+어떤 서버 호출하나? @FeignClient(name='product') eureka에서 product 서버 목록을 조회해서 Ribbon을 통해 Load Balancing하며 HTTP호출을 수행
+
+
+### Feign 정리
+- 인터페이스 선언 + 설정으로 아래 가능
+- Http Client
+- Eureka 타겟 서버 주소 획득
+- Ribbon을 통한 Client-Side Load Balancing
+- Hystrix를 통한 메소드별 Circuit Breaker
+
+
+### Feign + Hystrix, Ribbon, Eureka
+- 장애 유형별 동작 예
+> 특정 API 서버의 인스턴스가 한개 Down된 경우
+> - Eureka : Heartbeat 송신이 중단됨으로 일정 시간 후 목록에서 사라짐
+> - Ribbon : IOException이 발생하여 다른 인스턴스로 Retry
+> - Hystrix : Circuit은 오픈되지 않음. Fallback, Timeout은 동작
+
+> 특정 API가 비정상적인 경우(지연, 에러)
+> - Hystrix : 해당 API를 호출하는 Circuit Breaker 오픈. Fallback, Timeout도 동작
