@@ -87,8 +87,8 @@ Circuit Breaker의 단위
 
 ### Feign의 동작
 - Feign Client는 내부적으로 Ribbon을 사용.
-> @FeignClient에 URL 명시 => No Ribbon, No Eureka, No Hystrix (순수 Feign Client로서만 동작)
-> @FeignClient에서 URL만 제거 => Ribbon + Eureka + Hystrix 모드로 동작
+> - @FeignClient에 URL 명시 => No Ribbon, No Eureka, No Hystrix (순수 Feign Client로서만 동작)
+> - @FeignClient에서 URL만 제거 => Ribbon + Eureka + Hystrix 모드로 동작
 어떤 서버 호출하나? @FeignClient(name='product') eureka에서 product 서버 목록을 조회해서 Ribbon을 통해 Load Balancing하며 HTTP호출을 수행
 
 
