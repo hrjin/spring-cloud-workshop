@@ -109,3 +109,69 @@ Circuit Breaker의 단위
 
 > 특정 API가 비정상적인 경우(지연, 에러)
 > - Hystrix : 해당 API를 호출하는 Circuit Breaker 오픈. Fallback, Timeout도 동작
+
+<br>
+<br>
+
+## API Gateway
+
+### 특징
+- 클라이언트와 백엔드 서버 사이의 출입문(front door)
+- 특정 URL이 요청왔을 때 내가 원하는 서비스로 라우팅(라우팅, 필터링, API 변환, 클라이언트 어댑터 API, 서비스 프록시)
+- 횡단 관심사 cross-sesrvice concerns
+> 보안, 인증, 인가
+> 일정량 이상의 요청 제한(Rate limiting)
+> 계측(metering)
+
+
+### Netflix Zuul
+- Hystrix, Eureka, Ribbon 내장
+- 마이크로 프록시
+- AWS ELB(Elastic Load Balancer) 앞에 위치해 어느 서버로 보낼 것인지
+
+```
+1) Hystrix Command
+- Zuul의 모든 API 요청은 Hystrix Command로 구성되어 전달
+> 각 API 경로별로 Circuit Breaker 생성
+> 하나의 서버군이 장애를 일으켜도 다른 서버군의 서비스에는 영향이 없다
+> Circuit Breaker / ThreadPool의 다양한 속성을 통해 서비스 별 속성에 맞는 설정 가능
+
+2) Ribbon
+- API를 전달할 서버의 목록을 갖고 Ribbon을 통해 Load Balancing을 수행
+> 주어진 서버 목록들을 Round-Robin으로 호출
+> 코딩을 통해 Customize 가능
+
+3) Eureka Client
+- 각 URL에 매핑된 서비스명을 찾아 Eureka Server를 통해 목록을 조회한다.
+- 조회된 서버 목록을 'Ribbon' 클라이언트에게 전달한다.
+
+4) Eureka + Ribbon에 의해 결정된 Server 주소로 HTTP(Apache HTTP Client가 기본) 요청
+
+5) 선택된 첫 서버로의 호출이 실패할 경우 Ribbon에 의해 자동으로 Retry 수행
+- Retry 수행 조건
+> HTTP Client에서 Exception 발생(IOException)
+> 설정된 응답코드 반환(ex. 503)
+```
+
+<br>
+<br>
+
+```
+- 정리
+> Zuul의 모든 호출은 HystrixCommand로 실행되므로 Circuit Breaker를 통해 장애 시 Fallback 수행 가능
+> Ribbon + Eureka 조합을 통해 현재 서비스가 가능한 서버의 목록을 자동으로 수신
+> Ribbon의 Retry 기능을 통해 동일한 종류 서버들로 자동 재시도가 가능
+```
+
+<br>
+<br>
+
+#### Spring Cloud Zuul의 Isolation
+Spring Cloud Zuul의 기본 Isolation은 Semaphore. Semaphre는 network timeout을 격리시켜주지 못함. 그래서 Thred로 변경.
+- zuul.ribbon-isolation-strategy: thread
+
+But!! 전체 서비스의 대해 모든 HystrixCommand가 하나의 Thredpool이 생김. (버그...)
+
+그래서 다시 이걸 유레카에 등록된 각 서비스별 Thread로 분리 생성하기 위해서는 설정 2개가 필요.
+- zuul.thread-pool.useSeparateThreadPools: true
+- zuul.thread-pool.threadPoolKeyPrefix: zuulgw
