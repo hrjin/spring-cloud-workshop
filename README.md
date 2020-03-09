@@ -167,7 +167,7 @@ Circuit Breaker의 단위
 <br>
 
 #### Spring Cloud Zuul의 Isolation
-Spring Cloud Zuul의 기본 Isolation은 Semaphore. Semaphre는 network timeout을 격리시켜주지 못함. 그래서 Thred로 변경.
+Spring Cloud Zuul의 기본 Isolation은 Semaphore. Semaphore는 network timeout을 격리시켜주지 못함. 그래서 Thread로 변경.
 - zuul.ribbon-isolation-strategy: thread
 
 But!! 전체 서비스의 대해 모든 HystrixCommand가 하나의 Thredpool이 생김. (버그...)
